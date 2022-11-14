@@ -1,0 +1,53 @@
+@startuml test
+ hide circle
+ skinparam linetype ortho
+
+ entity "users (ユーザー)" as users {
+     * <<PK>> id : Guid : id
+     --
+     * <<u>> name    : string    : ユーザー名
+     * display_name  : string    : ユーザー表示名
+     * password_hash : string    : パスワード
+     created_at      : date      : 作成日時
+     updated_at      : date      : 更新日時
+ }
+
+ entity "smokers (燻製器)" as smokers {
+     * <<PK>> id : Guid : id
+     --
+     * <<FK>> user_id            : foreignId : ユーザーid
+     * name                      : string    : 燻製機器名
+     off_temperature             : double    : 電源off温度(℃)
+     on_difference_temperature   : double    : 電源onにする温度差(℃)
+     created_at                  : date      : 作成日時
+     updated_at                  : date      : 更新日時
+     --
+     unique : [user_id, name] 
+ }
+
+ entity "smoking_states (M 燻製実施状況)" as smoking_states {
+     * <<PK>> id : Guid : id
+     --
+     * <<u>> name    : string    : 状況名
+     * display_name  : string    : 状況表示名
+     created_at      : date      : 作成日時
+     updated_at      : date      : 更新日時
+ }
+
+ entity "smokings (燻製実施)" as smokings {
+     * <<PK>> id : Guid : id
+     --
+     * <<FK>> smoker_id          : integer : 燻製器id
+     * <<FK>> smoking_state_id   : integer : 燻製実施状況id
+     temperature : 温度(℃)
+     is_smoke : bool : 煙が出ている
+     is_power_on : bool : 電源が入っている
+     created_at : date : 作成日時
+     updated_at : date : 更新日時
+ }
+
+ users ||..o{ smokers
+ smoking_states ||..o{ smokings
+ smokers ||..o{ smokings
+
+ @enduml
