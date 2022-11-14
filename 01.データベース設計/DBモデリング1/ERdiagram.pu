@@ -1,53 +1,84 @@
-@startuml test
+@startuml sushi
  hide circle
  skinparam linetype ortho
 
- entity "users (ユーザー)" as users {
-     * <<PK>> id : Guid : id
+ entity "注文種別 (OrderType)" as OrderType {
+     * <<PK>> ot_no : int : 注文種別No
      --
-     * <<u>> name    : string    : ユーザー名
-     * display_name  : string    : ユーザー表示名
-     * password_hash : string    : パスワード
+     * ot_name       : string    : 注文種別名
      created_at      : date      : 作成日時
      updated_at      : date      : 更新日時
  }
 
- entity "smokers (燻製器)" as smokers {
-     * <<PK>> id : Guid : id
+ entity "商品マスタ (Product)" as Product {
+     * <<PK>> p_no : int : 商品No
      --
-     * <<FK>> user_id            : foreignId : ユーザーid
-     * name                      : string    : 燻製機器名
-     off_temperature             : double    : 電源off温度(℃)
-     on_difference_temperature   : double    : 電源onにする温度差(℃)
+     * <<FK>> ot_no              : string : 注文種別No
+     * <<FK>> pt_no              : string : 商品種類No
+     * p_name                    : string    : 商品名
      created_at                  : date      : 作成日時
      updated_at                  : date      : 更新日時
      --
      unique : [user_id, name] 
  }
 
- entity "smoking_states (M 燻製実施状況)" as smoking_states {
-     * <<PK>> id : Guid : id
+ entity "商品種類 (ProductType)" as ProductType {
+     * <<PK>> pt_no : int : 商品種類No
      --
-     * <<u>> name    : string    : 状況名
-     * display_name  : string    : 状況表示名
+     * pt_name                    : string    : 商品種類名
+     created_at                  : date      : 作成日時
+     updated_at                  : date      : 更新日時
+     --
+     unique : [user_id, name] 
+ }
+
+  entity "値段 (Price)" as Price {
+     * <<FK>> p_no              : int : 商品No
+     --
+     * price                    : int    : 値段
+     created_at                  : date      : 作成日時
+     updated_at                  : date      : 更新日時
+     --
+     unique : [user_id, name] 
+ }
+
+ entity "顧客 (Customer)" as Customer {
+     * <<PK>> c_no : int : 顧客No
+     --
+     * c_name    : string    : 名前
+     * phonenumber  : string    : 電話番号
+     * payment_flag  : string    : 支払いフラグ(0:未 1:済)
      created_at      : date      : 作成日時
      updated_at      : date      : 更新日時
  }
 
- entity "smokings (燻製実施)" as smokings {
-     * <<PK>> id : Guid : id
+ entity "注文明細 (OrderDetails)" as OrderDetails {
+     * <<PK>> od_no : int : 注文No
      --
-     * <<FK>> smoker_id          : integer : 燻製器id
-     * <<FK>> smoking_state_id   : integer : 燻製実施状況id
-     temperature : 温度(℃)
-     is_smoke : bool : 煙が出ている
-     is_power_on : bool : 電源が入っている
+     * <<FK>> c_no          : int : 顧客No
+     * <<FK>> p_no          : int : 商品No
+     * amount: int : 注文数量 
+     * sabi_flag: int : サビフラグ(0:あり, 1:なし)
+     * ricesize_flag: int : しゃりフラグ(0:通常, 1:大, 2:小)
      created_at : date : 作成日時
      updated_at : date : 更新日時
  }
 
- users ||..o{ smokers
- smoking_states ||..o{ smokings
- smokers ||..o{ smokings
+entity "注文履歴 (OrderHistory)" as OrderHistory {
+     * <<FK>> od_no              : int : 注文No
+     --
+     * order_date                : date      : 注文日時
+     created_at                  : date      : 作成日時
+     updated_at                  : date      : 更新日時
+     --
+     unique : [user_id, name] 
+ }
+
+ OrderType ||..{ Product
+ ProductType ||..{ Product
+ ProductType ||..|| Price
+ Customer ||..o{ OrderDetails
+ Price ||..o{ OrderDetails
+ OrderHistory ||..|| OrderDetails
 
  @enduml
