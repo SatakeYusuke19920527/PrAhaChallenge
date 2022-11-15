@@ -3,70 +3,74 @@ CREATE DATABASE IF NOT EXISTS sushi;
 
 -- CREATE TABLE
 CREATE TABLE IF NOT EXISTS sushi.OrderType (
-  ot_no int AUTO_INCREMENT NOT NULL, 
+  ot_id int AUTO_INCREMENT NOT NULL, 
   ot_name varchar(30) NOT NULL, 
   created_at datetime default current_timestamp,
   updated_at timestamp default current_timestamp on update current_timestamp,
-  PRIMARY KEY (ot_no)
+  PRIMARY KEY (ot_id)
 );
 
 CREATE TABLE IF NOT EXISTS sushi.ProductType (
-  pt_no int AUTO_INCREMENT NOT NULL, 
+  pt_id int AUTO_INCREMENT NOT NULL, 
   pt_name varchar(30) NOT NULL, 
   created_at datetime default current_timestamp,
   updated_at timestamp default current_timestamp on update current_timestamp,
-  PRIMARY KEY (pt_no)
-);
-
-CREATE TABLE IF NOT EXISTS sushi.Product (
-  p_no int AUTO_INCREMENT NOT NULL, 
-  p_name varchar(30) NOT NULL, 
-  ot_no int NOT NULL,
-  pt_no int NOT NULL,
-  created_at datetime default current_timestamp,
-  updated_at timestamp default current_timestamp on update current_timestamp,
-  PRIMARY KEY (p_no),
-  FOREIGN KEY fk_ot_no(ot_no) REFERENCES OrderType(ot_no),
-  FOREIGN KEY fk_pt_no(pt_no) REFERENCES ProductType(pt_no)
+  PRIMARY KEY (pt_id)
 );
 
 CREATE TABLE IF NOT EXISTS sushi.Price (
-  p_no int AUTO_INCREMENT NOT NULL, 
+  price_id int AUTO_INCREMENT NOT NULL, 
   price int NOT NULL,
   created_at datetime default current_timestamp,
   updated_at timestamp default current_timestamp on update current_timestamp,
-  FOREIGN KEY fk_p_no(p_no) REFERENCES Product(p_no)
+  PRIMARY KEY (price_id)
 );
 
+CREATE TABLE IF NOT EXISTS sushi.Product (
+  p_id int AUTO_INCREMENT NOT NULL, 
+  p_name varchar(30) NOT NULL, 
+  price_id int NOT NULL,
+  ot_id int NOT NULL,
+  pt_id int NOT NULL,
+  created_at datetime default current_timestamp,
+  updated_at timestamp default current_timestamp on update current_timestamp,
+  PRIMARY KEY (p_id),
+  FOREIGN KEY fk_price_id(price_id) REFERENCES Price(price_id),
+  FOREIGN KEY fk_ot_id(ot_id) REFERENCES OrderType(ot_id),
+  FOREIGN KEY fk_pt_id(pt_id) REFERENCES ProductType(pt_id)
+);
+
+
+
 CREATE TABLE IF NOT EXISTS sushi.Customer (
-  c_no int AUTO_INCREMENT NOT NULL, 
+  c_id int AUTO_INCREMENT NOT NULL, 
   c_name varchar(30) NOT NULL, 
   phonenumber varchar(30) NOT NULL, 
   payment_flag int,
   created_at datetime default current_timestamp,
   updated_at timestamp default current_timestamp on update current_timestamp,
-  PRIMARY KEY (c_no)
+  PRIMARY KEY (c_id)
 );
 
 CREATE TABLE IF NOT EXISTS sushi.OrderDetails (
-  od_no int AUTO_INCREMENT NOT NULL, 
-  c_no int NOT NULL, 
-  p_no int NOT NULL, 
+  od_id int AUTO_INCREMENT NOT NULL, 
+  c_id int NOT NULL, 
+  p_id int NOT NULL, 
   amount int NOT NULL,
   sabi_flag varchar(30) NOT NULL, 
   ricesize_flag varchar(30) NOT NULL, 
   ricekind_flag varchar(30) NOT NULL, 
   created_at datetime default current_timestamp,
   updated_at timestamp default current_timestamp on update current_timestamp,
-  PRIMARY KEY (od_no),
-  FOREIGN KEY fk_c_no(c_no) REFERENCES Customer(c_no),
-  FOREIGN KEY fk_p_no(p_no) REFERENCES Price(p_no)
+  PRIMARY KEY (od_id),
+  FOREIGN KEY fk_c_id(c_id) REFERENCES Customer(c_id),
+  FOREIGN KEY fk_p_id(p_id) REFERENCES Product(p_id)
 );
 
 CREATE TABLE IF NOT EXISTS sushi.OrderHistory (
-  od_no int NOT NULL, 
+  od_id int NOT NULL, 
   order_date date NOT NULL,
   created_at datetime default current_timestamp,
   updated_at timestamp default current_timestamp on update current_timestamp,
-  FOREIGN KEY fk_od_no(od_no) REFERENCES OrderDetails(od_no)
+  FOREIGN KEY fk_od_id(od_id) REFERENCES OrderDetails(od_id)
 );
