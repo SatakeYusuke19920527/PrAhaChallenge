@@ -138,7 +138,4 @@ on
 group by
   	OH.order_date
 ```
-
-- 実行結果は以下
-<br>
 ![実行結果](./img/result.png)
