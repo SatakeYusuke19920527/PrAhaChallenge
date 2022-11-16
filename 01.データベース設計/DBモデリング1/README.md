@@ -32,39 +32,45 @@
 ## 課題2
 #### 仕様変更について
 - OrderDetailsテーブルへシャリフラグを追加し、注文時点でシャリのサイズを記録する。通常サイズであれば0、大であれば1、小であれば2というようにフラグ化することで、様々なシャリの大きさに対応する。
-- OrderHistoryテーブルを作成し、各月でgroupbyすることによって、商品マスタに登録されている商品が過去どれぐらい注文されているかを集計することができる。以下クエリを実行すると、月別の集計が得られる。
 
+- 商品マスタに登録されている商品が過去どれぐらい注文されているかを月毎に集計するクエリは以下。
 ```sql
--- 各月の集計を出すクエリ
-select
-    sum(OD.amount*PE.price) as 支払い金額,
-    DATE_FORMAT(OH.order_date, '%Y-%m') as 各月の集計金額
+-- 9月に売れた寿司ネタを算出するクエリ
+select 
+	 PT.p_name as 商品名,
+	sum(OD.amount) as 売り上げ個数
 from 
 	OrderDetails as OD
 inner join 
 	OrderHistory as OH
 on
-	OD.od_id = OH.od_id
+	OD.od_id = OH.od_id	
 inner join 
 	Product as PT
 on
-	OD.p_id = PT.p_id	
+	OD.p_id = PT.p_id
 inner join 
 	Price as PE
 on
 	PT.price_id = PE.price_id
+where
+	PT.pt_id = 5 and OH.order_date BETWEEN '2022/09/01 00:00:00' AND '2022/09/30 23:59:59'
 group by
-  	OH.order_date
+	 PT.p_name
 ```
 
-- 実行結果は以下
-![実行結果](./img/%E5%AE%9F%E8%A1%8C%E7%B5%90%E6%9E%9C.png)
+
+
+
 
 ## 課題3
 #### 追加仕様について
 - しゃりは大きさだけでなく、しゃり自体の種類がネタによって変更されることがある。具体的には、すし酢を使う場合と赤酢を使使う場合である。本件に対応する為、ricekind_flagを作成。0であればすし酢、1であれば赤酢であり、今後新たな酢飯の種類にも対応できるようにした。
 
 ## 課題4
+### ユースケース
+- お寿司屋さんの各月の売り上げの集計を考える
+
 MySQLのコンテナを使用し、最上部のER図をもとにDB構築を実施。
 DBの構築手順は以下へ記載。
 
@@ -110,8 +116,29 @@ CREATE DATABASE IF NOT EXISTS sushi;
 
 実行結果は以下
 
-- 実行したクエリ
-![クエリ](./img/%E3%82%AF%E3%82%A8%E3%83%AA.png)
+```sql
+-- 各月の集計を出すクエリ
+select
+    sum(OD.amount*PE.price) as 支払い金額,
+    DATE_FORMAT(OH.order_date, '%Y-%m') as 各月の集計金額
+from 
+	OrderDetails as OD
+inner join 
+	OrderHistory as OH
+on
+	OD.od_id = OH.od_id
+inner join 
+	Product as PT
+on
+	OD.p_id = PT.p_id	
+inner join 
+	Price as PE
+on
+	PT.price_id = PE.price_id
+group by
+  	OH.order_date
+```
 
-- 結果
+- 実行結果は以下
+<br>
 ![実行結果](./img/%E5%AE%9F%E8%A1%8C%E7%B5%90%E6%9E%9C.png)
