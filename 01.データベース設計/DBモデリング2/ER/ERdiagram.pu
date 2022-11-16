@@ -1,0 +1,76 @@
+@startuml chatapp
+ hide circle
+ skinparam linetype ortho
+
+ entity "User (u)" as u {
+     * <<PK>> uid : int : ユーザID
+     --
+     * uname       : string    : ユーザ名
+     * email       : string    : メールアドレス
+     displayName       : string    : ユーザ表示名
+     avatarUrl       : string    : アバターURL
+     created_at      : date      : 作成日時
+     updated_at      : date      : 更新日時
+ }
+ 
+ entity "WorkSpace (ws)" as ws {
+     * <<PK>> wsid : int : ワークスペースID
+     --
+     * wsname       : string    : ワークスペース名
+     created_at                  : date      : 作成日時
+     updated_at                  : date      : 更新日時
+ }
+
+entity "Channel (c)" as c {
+     * <<PK>> cid : int : チャネルID
+     --
+     * <<FK>> wsid : int : ワークスペースID
+     created_at                  : date      : 作成日時
+     updated_at                  : date      : 更新日時
+ }
+
+entity "Message (m)" as m {
+     * <<PK>> mid : int : メッセージID
+     --
+     * <<FK>> cid : int : チャネルID
+     * speaker       : string    : 発言者
+     * message       : string    : メッセージ
+     * sendtime       : string    : 送信時間
+     created_at                  : date      : 作成日時
+     updated_at                  : date      : 更新日時
+ }
+
+entity "Thread (t)" as t {
+     * <<PK>> tid : int : スレッドID
+     --
+     * <<FK>> mid : int : メッセージID
+     * speaker       : string    : 発言者
+     * tmessage       : string    : スレッドメッセージ
+     * sendtime       : string    : 送信時間
+     created_at                  : date      : 作成日時
+     updated_at                  : date      : 更新日時
+ }
+
+entity "RelationshipWU (rwu)" as rwu {
+     * <<FK>> wsid : int : ワークスペースID
+     * <<FK>> uid : int : ユーザID
+     created_at                  : date      : 作成日時
+     updated_at                  : date      : 更新日時
+ }
+
+entity "RelationshipCU (rcu)" as rcu {
+     * <<FK>> cid : int : チャネルID
+     * <<FK>> uid : int : ユーザID
+     created_at                  : date      : 作成日時
+     updated_at                  : date      : 更新日時
+ }
+
+ ws ||..{ c
+ c ||..o{ m
+ m ||..o{ t
+ ws ||..o{ rwu
+ u ||..o{ rwu
+ c ||..o{ rcu
+ u ||..o{ rcu
+
+ @enduml
