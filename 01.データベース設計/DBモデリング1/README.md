@@ -141,4 +141,4 @@ group by
 
 - 実行結果は以下
 <br>
-![実行結果](./img/%E5%AE%9F%E8%A1%8C%E7%B5%90%E6%9E%9C.png)
+![実行結果](./img/result.png)
