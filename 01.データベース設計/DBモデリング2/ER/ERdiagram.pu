@@ -25,6 +25,7 @@ entity "Channel (c)" as c {
      * <<PK>> cid : int : チャネルID
      --
      * <<FK>> wsid : int : ワークスペースID
+     * cname       : string    : チャネル名
      created_at                  : date      : 作成日時
      updated_at                  : date      : 更新日時
  }
@@ -33,9 +34,9 @@ entity "Message (m)" as m {
      * <<PK>> mid : int : メッセージID
      --
      * <<FK>> cid : int : チャネルID
-     * speaker       : string    : 発言者
+     * <<FK>> speaker       : string    : 発言者
      * message       : string    : メッセージ
-     * sendtime       : string    : 送信時間
+     * sendtime       : date    : 送信時間
      created_at                  : date      : 作成日時
      updated_at                  : date      : 更新日時
  }
@@ -44,7 +45,7 @@ entity "Thread (t)" as t {
      * <<PK>> tid : int : スレッドID
      --
      * <<FK>> mid : int : メッセージID
-     * speaker       : string    : 発言者
+     * <<FK>> speaker       : string    : 発言者
      * tmessage       : string    : スレッドメッセージ
      * sendtime       : string    : 送信時間
      created_at                  : date      : 作成日時
