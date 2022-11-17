@@ -3,7 +3,7 @@
  skinparam linetype ortho
 
  entity "User (u)" as u {
-     * <<PK>> uid : int : ユーザID
+     * <<PK>> uid : string : ユーザID
      --
      * uname       : string    : ユーザ名
      * email       : string    : メールアドレス
@@ -14,7 +14,7 @@
  }
  
  entity "WorkSpace (ws)" as ws {
-     * <<PK>> wsid : int : ワークスペースID
+     * <<PK>> wsid : string : ワークスペースID
      --
      * wsname       : string    : ワークスペース名
      created_at                  : date      : 作成日時
@@ -22,18 +22,18 @@
  }
 
 entity "Channel (c)" as c {
-     * <<PK>> cid : int : チャネルID
+     * <<PK>> cid : string : チャネルID
      --
-     * <<FK>> wsid : int : ワークスペースID
+     * <<FK>> wsid : string : ワークスペースID
      * cname       : string    : チャネル名
      created_at                  : date      : 作成日時
      updated_at                  : date      : 更新日時
  }
 
 entity "Message (m)" as m {
-     * <<PK>> mid : int : メッセージID
+     * <<PK>> mid : string : メッセージID
      --
-     * <<FK>> cid : int : チャネルID
+     * <<FK>> cid : string : チャネルID
      * <<FK>> speaker       : string    : 発言者
      * message       : string    : メッセージ
      * sendtime       : date    : 送信時間
@@ -42,9 +42,9 @@ entity "Message (m)" as m {
  }
 
 entity "Thread (t)" as t {
-     * <<PK>> tid : int : スレッドID
+     * <<PK>> tid : string : スレッドID
      --
-     * <<FK>> mid : int : メッセージID
+     * <<FK>> mid : string : メッセージID
      * <<FK>> speaker       : string    : 発言者
      * tmessage       : string    : スレッドメッセージ
      * sendtime       : string    : 送信時間
@@ -53,15 +53,15 @@ entity "Thread (t)" as t {
  }
 
 entity "RelationshipWU (rwu)" as rwu {
-     * <<FK>> wsid : int : ワークスペースID
-     * <<FK>> uid : int : ユーザID
+     * <<FK>> wsid : string : ワークスペースID
+     * <<FK>> uid : string : ユーザID
      created_at                  : date      : 作成日時
      updated_at                  : date      : 更新日時
  }
 
 entity "RelationshipCU (rcu)" as rcu {
-     * <<FK>> cid : int : チャネルID
-     * <<FK>> uid : int : ユーザID
+     * <<FK>> cid : string : チャネルID
+     * <<FK>> uid : string : ユーザID
      created_at                  : date      : 作成日時
      updated_at                  : date      : 更新日時
  }

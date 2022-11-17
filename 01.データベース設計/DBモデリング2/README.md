@@ -5,7 +5,6 @@
 ![ER図](./ER/er2.png)
 
 ### テーブル作成
-#### ユースケース
 DBの構築手順は以下へ記載。
 
 #### 前提
@@ -45,31 +44,53 @@ CREATE DATABASE IF NOT EXISTS chatapp;
 6. 以下のSQLを使用し、サンプルデータをインサート  
 ./sql/insert_sample_data.sql
 
-7. 後は以下のSQLを使用すれば、月別の合計金額が取得できる  
-./sql/monthly_aggregation.sql
-
-実行結果は以下
-
+#### ユースケース
+1. 特定のチャネル[c_0001]でのメッセージの取得
+   
 ```sql
--- 各月の集計を出すクエリ
-select
-    sum(OD.amount*PE.price) as 支払い金額,
-    DATE_FORMAT(OH.order_date, '%Y-%m') as 各月の集計金額
+select 
+	ws.wsid as ワークスペース,
+	m.cid as チャネル,
+	u.displayName as ユーザ名,
+	m.message as メッセージ,
+	 m.sendtime as 日時
 from 
-	OrderDetails as OD
-inner join 
-	OrderHistory as OH
+	m
+inner join
+	u
+on 
+	m.speaker = u.uid
+inner join
+	c
 on
-	OD.od_id = OH.od_id
-inner join 
-	Product as PT
+	m.cid = c.cid
+inner join
+	ws
 on
-	OD.p_id = PT.p_id	
-inner join 
-	Price as PE
-on
-	PT.price_id = PE.price_id
-group by
-  	OH.order_date
+	c.wsid = ws.wsid
+where
+	c.cid = 'c_0001'
 ```
-![実行結果](./img/result.png)
+![実行結果1](./img/usecase1.png)
+
+2. スレッドメッセージの取得
+   特定のチャネル[c_0001]でメッセージの取得
+```sql
+
+```
+![実行結果2](./img/usecase2.png)
+
+1. チャネルに所属しているユーザのみメッセージ表示
+```sql
+
+```
+![実行結果3](./img/usecase3.png)
+
+4. 検索機能
+  要件は以下
+  + メッセージとスレッドメッセージを横断的に検索できること
+  + 参加していないチャネルのメッセージ・スレッドメッセージは検索できないこと
+```sql
+
+```
+![実行結果4](./img/usecase4.png)
