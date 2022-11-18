@@ -52,14 +52,8 @@ entity "Thread (t)" as t {
      updated_at                  : date      : 更新日時
  }
 
-entity "RelationshipWU (rwu)" as rwu {
+entity "RelationshipWCU (rwcu)" as rwcu {
      * <<FK>> wsid : string : ワークスペースID
-     * <<FK>> uid : string : ユーザID
-     created_at                  : date      : 作成日時
-     updated_at                  : date      : 更新日時
- }
-
-entity "RelationshipCU (rcu)" as rcu {
      * <<FK>> cid : string : チャネルID
      * <<FK>> uid : string : ユーザID
      created_at                  : date      : 作成日時
@@ -69,9 +63,9 @@ entity "RelationshipCU (rcu)" as rcu {
  ws ||..{ c
  c ||..o{ m
  m ||..o{ t
- ws ||..o{ rwu
- u ||..o{ rwu
- c ||..o{ rcu
- u ||..o{ rcu
+ ws ||..o{ rwcu
+ c ||..o{ rwcu
+ u ||..o{ rwcu
+ 
 
  @enduml

@@ -54,43 +54,85 @@ select
 	u.displayName as ユーザ名,
 	m.message as メッセージ,
 	 m.sendtime as 日時
-from 
-	m
-inner join
-	u
-on 
-	m.speaker = u.uid
-inner join
-	c
-on
-	m.cid = c.cid
-inner join
-	ws
-on
-	c.wsid = ws.wsid
-where
-	c.cid = 'c_0001'
+from m
+inner join u on m.speaker = u.uid
+inner join c on m.cid = c.cid
+inner join ws on c.wsid = ws.wsid
+where c.cid = 'c_0001'
 ```
 ![実行結果1](./img/usecase1.png)
 
 2. スレッドメッセージの取得
-   特定のチャネル[c_0001]でメッセージの取得
+  + 特定のチャネルでスレッドとして送信された各メッセージ毎のスレッドメッセージの取得
 ```sql
-
+select 
+	ws.wsid as ワークスペース,
+	c.cid as チャネル,
+	m.mid as メッセージID,
+	u.displayName as ユーザ名,
+	t.tmessage as メッセージ,
+	 m.sendtime as 日時
+from m 
+inner join t on	m.mid = t.mid
+inner join c on m.cid = c.cid
+inner join u on t.speaker = u.uid
+inner join ws on c.wsid = ws.wsid
+where m.cid = 'c_0001'
 ```
 ![実行結果2](./img/usecase2.png)
 
-1. チャネルに所属しているユーザのみメッセージ表示
+3. チャネルに所属するユーザのみメッセージを閲覧可能
+検索処理は後々かなり重たい処理になることが予想されるので、特定のワークスペース内のチャネルに選択したユーザが存在するかどうか確認するクエリを実行する。
+検索の実行は上記1. 2. のクエリを使用すれば実行可能。
 ```sql
-
+-- 各検索を実施するワークスペース・チャネル・ユーザを入力
+set @WORKSPACE_ID = 'ws_0001';
+set @CHANNEL_ID = 'c_0001';
+set @USER_ID = 'u_0004';
+set @IS_USER = (select count(*) from rwcu where wsid = @WORKSPACE_ID and cid = @CHANNEL_ID and uid = @USER_ID);
+-- 結果が1であれば検索実行。0であればチャネル内に存在しないユーザなので検索を実行しない。
+select @IS_USER;
 ```
 ![実行結果3](./img/usecase3.png)
 
-4. 検索機能
-  要件は以下
-  + メッセージとスレッドメッセージを横断的に検索できること
-  + 参加していないチャネルのメッセージ・スレッドメッセージは検索できないこと
+4. ユーザは以下二つの要件を満たす必要がある
+各ユーザがどのワークスペースもしくはチャネルに所属しているかは[rwcu]テーブルで管理する。
+上記テーブルへレコードを挿入すると参加、レコードを削除すると脱退できる。
+例えば、現在ワークスペース1に所属しているユーザは以下。
+```sql
+-- 所属ユーザ確認用クエリ
+select * from rwcu where wsid = 'ws_0001' and cid = 'c_0001'
+```
+![実行結果4](./img/usecase4.png)
+
+ワークスペース1のチャネル1にはuidが `u_0001`,`u_0002`,`u_0003` のユーザが所属していることがわかる。
+このワークスペース1のチャネル1へユーザを登録するのは以下のクエリ。
+
+```sql
+-- ユーザをワークスペース1のチャネル1へ追加
+INSERT INTO rwcu (wsid, cid, uid) VALUES ('ws_0001','c_0001','u_0004')
+```
+![実行結果4-1](./img/usecase4-1.png)
+
+
+また、ワークスペース1[`ws_0001`]からユーザ1[`u_0001`]を脱退させる場合のクエリは以下
+```sql
+-- rwcuテーブルのワークスペース1にユーザ1が存在するかどうか確認
+select * from rwcu where wsid = 'ws_0001' and uid = 'u_0001'
+```
+ワークスペース1のチャネル1~3に参加していることを確認
+![実行結果4-2](./img/usecase4-2.png)
+
+```sql
+-- rwcuテーブルのワークスペース1からユーザ1を脱退させる
+delete from rwcu where wsid = 'ws_0001' and uid = 'u_0001'
+```
+
+5. 横断的な検索機能
+処理の流れとしては以下。
+- 問題3で使用した`rwcu`テーブルを使用して、検索を使用するユーザがどのチャネルに存在しているか確認
+- 検索結果から所属しているチャネルに限定し、横断的な検索を実行
 ```sql
 
 ```
-![実行結果4](./img/usecase4.png)
+![実行結果5](./img/usecase5.png)

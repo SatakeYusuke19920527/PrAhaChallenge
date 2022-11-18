@@ -56,20 +56,13 @@ CREATE TABLE IF NOT EXISTS chatapp.t (
   FOREIGN KEY fk_speaker(speaker) REFERENCES u(uid)
 );
 
-CREATE TABLE IF NOT EXISTS chatapp.rwu (
+CREATE TABLE IF NOT EXISTS chatapp.rwcu (
   wsid varchar(30) NOT NULL, 
-  uid varchar(30) NOT NULL, 
-  created_at datetime default current_timestamp,
-  updated_at timestamp default current_timestamp on update current_timestamp,
-  FOREIGN KEY fk_wsid(wsid) REFERENCES ws(wsid),
-  FOREIGN KEY fk_uid(uid) REFERENCES u(uid)
-);
-
-CREATE TABLE IF NOT EXISTS chatapp.rcu (
   cid varchar(30) NOT NULL, 
   uid varchar(30) NOT NULL, 
   created_at datetime default current_timestamp,
   updated_at timestamp default current_timestamp on update current_timestamp,
+  FOREIGN KEY fk_wsid(wsid) REFERENCES ws(wsid),
   FOREIGN KEY fk_cid(cid) REFERENCES c(cid),
   FOREIGN KEY fk_uid(uid) REFERENCES u(uid)
 );
