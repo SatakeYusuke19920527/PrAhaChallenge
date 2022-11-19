@@ -1,14 +1,14 @@
 -- CREATE DATABASE
 CREATE DATABASE IF NOT EXISTS sushi;
 
--- CREATE TABLE
-CREATE TABLE IF NOT EXISTS sushi.OrderType (
-  ot_id int AUTO_INCREMENT NOT NULL, 
-  ot_name varchar(30) NOT NULL, 
-  created_at datetime default current_timestamp,
-  updated_at timestamp default current_timestamp on update current_timestamp,
-  PRIMARY KEY (ot_id)
-);
+-- CREATE TABLE > レビュー後修正。OrderTypeは無くす方向
+-- CREATE TABLE IF NOT EXISTS sushi.OrderType (
+--   ot_id int AUTO_INCREMENT NOT NULL, 
+--   ot_name varchar(30) NOT NULL, 
+--   created_at datetime default current_timestamp,
+--   updated_at timestamp default current_timestamp on update current_timestamp,
+--   PRIMARY KEY (ot_id)
+-- );
 
 CREATE TABLE IF NOT EXISTS sushi.ProductType (
   pt_id int AUTO_INCREMENT NOT NULL, 
@@ -30,13 +30,11 @@ CREATE TABLE IF NOT EXISTS sushi.Product (
   p_id int AUTO_INCREMENT NOT NULL, 
   p_name varchar(30) NOT NULL, 
   price_id int NOT NULL,
-  ot_id int NOT NULL,
   pt_id int NOT NULL,
   created_at datetime default current_timestamp,
   updated_at timestamp default current_timestamp on update current_timestamp,
   PRIMARY KEY (p_id),
   FOREIGN KEY fk_price_id(price_id) REFERENCES Price(price_id),
-  FOREIGN KEY fk_ot_id(ot_id) REFERENCES OrderType(ot_id),
   FOREIGN KEY fk_pt_id(pt_id) REFERENCES ProductType(pt_id)
 );
 
