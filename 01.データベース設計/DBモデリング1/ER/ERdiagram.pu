@@ -33,14 +33,12 @@
      --
      * c_name    : string    : 名前
      * phonenumber  : string    : 電話番号
-     * payment_flag  : string    : 支払いフラグ(0:未 1:済)
      created_at      : date      : 作成日時
      updated_at      : date      : 更新日時
  }
 
  entity "注文詳細 (OrderDetails)" as OrderDetails {
-     * <<PK>> od_id : int : 注文ID
-     --
+     * <<FK>> od_id : int : 注文ID
      * <<FK>> c_id          : int : 顧客ID
      * <<FK>> p_id          : int : 商品ID
      * amount: int : 注文数量 
@@ -51,9 +49,12 @@
      updated_at : date : 更新日時
  }
 
-entity "注文履歴 (OrderHistory)" as OrderHistory {
+entity "注文 (Order)" as Order {
      * <<FK>> od_id              : int : 注文ID
      --
+     * <<FK>> c_id          : int : 顧客ID
+     * isPayment  : boolean    : 支払いフラグ
+     * totalAmount: int : 合計金額
      * order_date                : date      : 注文日時
      created_at                  : date      : 作成日時
      updated_at                  : date      : 更新日時
@@ -63,6 +64,7 @@ entity "注文履歴 (OrderHistory)" as OrderHistory {
  Price ||..{ Product
  Customer ||..o{ OrderDetails
  Price ||..o{ OrderDetails
- OrderHistory ||..|| OrderDetails
+ OrderDetails }..|| Order
+ Customer ||..{ Order 
 
  @enduml

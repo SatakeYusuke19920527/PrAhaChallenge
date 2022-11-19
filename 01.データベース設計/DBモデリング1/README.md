@@ -1,7 +1,7 @@
 ## 課題1
 
 ### DBスキーマ設計
-![ER図](./ER/ER%E5%9B%B3.png)
+![ER](./ER/er.png)
 
 以下、各テーブルの管理する項目を記載する
 1. 商品マスタ(Product)
@@ -14,8 +14,8 @@
   + 顧客IDをプライマリキーとして、お持ち帰りメニューを注文する顧客の情報を管理するテーブル。電話番号や支払い済みかどうかを管理する。
 5. 注文詳細(OrderDetails)
   + 注文IDをプライマリキーとして、顧客からの注文を管理するテーブル。各注文と顧客IDを紐付け、どの顧客がどの注文をしたかを管理する。
-6. 注文履歴(OrderHistory)
-  + 注文IDを外部キーとして注文された日時を管理するテーブル。
+6. 注文(Order)
+  + 注文IDを外部キーとして注文された日時を管理するテーブル。注文IDから顧客毎の注文金額を算出し、支払いが完了したかどうかをフラグとして持つ。
 
 #### 物理モデルと論理モデルの違いについて
 + 論理モデル
@@ -33,16 +33,16 @@
 
 - 商品マスタに登録されている商品が過去どれぐらい注文されているかを月毎に集計するクエリは以下。
 ```sql
--- 9月に売れた寿司ネタを算出するクエリ
+-- 11月に売れた商品の注文数量を算出するクエリ
 select 
 	 PT.p_name as 商品名,
 	sum(OD.amount) as 売り上げ個数
 from 
-	OrderDetails as OD
+	sushi.OrderDetails as OD
 inner join 
-	OrderHistory as OH
+	sushi.Order as O
 on
-	OD.od_id = OH.od_id	
+	OD.od_id = O.od_id	
 inner join 
 	Product as PT
 on
@@ -52,7 +52,7 @@ inner join
 on
 	PT.price_id = PE.price_id
 where
-	PT.pt_id = 5 and OH.order_date BETWEEN '2022/09/01 00:00:00' AND '2022/09/30 23:59:59'
+	O.order_date BETWEEN '2022/11/01 00:00:00' AND '2022/11/30 23:59:59'
 group by
 	 PT.p_name
 ```
@@ -111,16 +111,15 @@ CREATE DATABASE IF NOT EXISTS sushi;
 実行結果は以下
 
 ```sql
--- 各月の集計を出すクエリ
 select
     sum(OD.amount*PE.price) as 支払い金額,
-    DATE_FORMAT(OH.order_date, '%Y-%m') as 各月の集計金額
+    DATE_FORMAT(O.order_date, '%Y-%m') as 各月の集計金額
 from 
 	OrderDetails as OD
 inner join 
-	OrderHistory as OH
+	sushi.Order as O
 on
-	OD.od_id = OH.od_id
+	OD.od_id = O.od_id
 inner join 
 	Product as PT
 on
@@ -130,6 +129,6 @@ inner join
 on
 	PT.price_id = PE.price_id
 group by
-  	OH.order_date
+  	O.order_date
 ```
 ![実行結果](./img/result.png)

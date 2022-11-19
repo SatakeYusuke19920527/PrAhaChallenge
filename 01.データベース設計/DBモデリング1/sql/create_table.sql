@@ -1,15 +1,6 @@
 -- CREATE DATABASE
 CREATE DATABASE IF NOT EXISTS sushi;
 
--- CREATE TABLE > レビュー後修正。OrderTypeは無くす方向
--- CREATE TABLE IF NOT EXISTS sushi.OrderType (
---   ot_id int AUTO_INCREMENT NOT NULL, 
---   ot_name varchar(30) NOT NULL, 
---   created_at datetime default current_timestamp,
---   updated_at timestamp default current_timestamp on update current_timestamp,
---   PRIMARY KEY (ot_id)
--- );
-
 CREATE TABLE IF NOT EXISTS sushi.ProductType (
   pt_id int AUTO_INCREMENT NOT NULL, 
   pt_name varchar(30) NOT NULL, 
@@ -50,6 +41,16 @@ CREATE TABLE IF NOT EXISTS sushi.Customer (
   PRIMARY KEY (c_id)
 );
 
+CREATE TABLE IF NOT EXISTS sushi.Order (
+  od_id int AUTO_INCREMENT NOT NULL, 
+  order_date date NOT NULL,
+  isPayment boolean NOT NULL,
+  totalAmount int NOT NULL,
+  created_at datetime default current_timestamp,
+  updated_at timestamp default current_timestamp on update current_timestamp,
+  PRIMARY KEY (od_id)
+);
+
 CREATE TABLE IF NOT EXISTS sushi.OrderDetails (
   od_id int AUTO_INCREMENT NOT NULL, 
   c_id int NOT NULL, 
@@ -59,16 +60,5 @@ CREATE TABLE IF NOT EXISTS sushi.OrderDetails (
   ricesize_flag varchar(30) NOT NULL, 
   ricekind_flag varchar(30) NOT NULL, 
   created_at datetime default current_timestamp,
-  updated_at timestamp default current_timestamp on update current_timestamp,
-  PRIMARY KEY (od_id),
-  FOREIGN KEY fk_c_id(c_id) REFERENCES Customer(c_id),
-  FOREIGN KEY fk_p_id(p_id) REFERENCES Product(p_id)
-);
-
-CREATE TABLE IF NOT EXISTS sushi.OrderHistory (
-  od_id int NOT NULL, 
-  order_date date NOT NULL,
-  created_at datetime default current_timestamp,
-  updated_at timestamp default current_timestamp on update current_timestamp,
-  FOREIGN KEY fk_od_id(od_id) REFERENCES OrderDetails(od_id)
+  updated_at timestamp default current_timestamp on update current_timestamp
 );
