@@ -1,0 +1,32 @@
+@startuml chatapp
+ hide circle
+ skinparam linetype ortho
+
+ entity "User (u)" as u {
+     * <<PK>> uid : string : ユーザID
+     --
+     * uname       : string    : ユーザ名
+     * email       : string    : メールアドレス
+     displayName       : string    : ユーザ表示名
+     avatarUrl       : string    : アバターURL
+     created_at      : date      : 作成日時
+     updated_at      : date      : 更新日時
+ }
+ 
+ entity "File (f)" as f {
+     * <<PK>> fid : string : ファイルID
+     --
+     * fname       : string    : ファイル名
+     * directoryPath       : string    : ディレクトリパス
+     * sortNo       : string    : ディレクトリ内のソート順
+     * <<FK>> owner       : string    : 所有者
+     * updateUser       : string    : 更新者
+     * content       : string    : ファイルの内容
+     * history       : string    : 更新履歴
+     created_at                  : date      : 作成日時
+     updated_at                  : date      : 更新日時
+ }
+
+ u ||..{ f
+
+ @enduml

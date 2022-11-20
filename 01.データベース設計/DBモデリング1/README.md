@@ -8,13 +8,11 @@
   + 商品IDをプライマリキーとして、商品の一覧を管理するテーブル。このテーブルを作成することで、商品の追加にも対応できるようにした。
 2. 商品種類(ProductType)
   + 商品種類IDをプライマリキーとして、全商品のカテゴリ一覧を管理するテーブル。このテーブルを作成することで、にぎりとは違うカテゴリの販売時(ex.うどんやそばなどの販売)にも対応できるようにした。
-3. 値段(Price)
-  + 値段IDをプライマリキーとして、各商品の値段を管理するテーブル。商品の値段の変更時にはこのテーブルの値段を修正すれば対応できる。
-4. 顧客(Customer)
+3. 顧客(Customer)
   + 顧客IDをプライマリキーとして、お持ち帰りメニューを注文する顧客の情報を管理するテーブル。電話番号や支払い済みかどうかを管理する。
-5. 注文詳細(OrderDetails)
+4. 注文詳細(OrderDetails)
   + 注文IDをプライマリキーとして、顧客からの注文を管理するテーブル。各注文と顧客IDを紐付け、どの顧客がどの注文をしたかを管理する。
-6. 注文(Order)
+5. 注文(Order)
   + 注文IDを外部キーとして注文された日時を管理するテーブル。注文IDから顧客毎の注文金額を算出し、支払いが完了したかどうかをフラグとして持つ。
 
 #### 物理モデルと論理モデルの違いについて
@@ -47,10 +45,6 @@ inner join
 	Product as PT
 on
 	OD.p_id = PT.p_id
-inner join 
-	Price as PE
-on
-	PT.price_id = PE.price_id
 where
 	O.order_date BETWEEN '2022/11/01 00:00:00' AND '2022/11/30 23:59:59'
 group by
@@ -112,7 +106,7 @@ CREATE DATABASE IF NOT EXISTS sushi;
 
 ```sql
 select
-    sum(OD.amount*PE.price) as 支払い金額,
+    sum(OD.amount*PT.price) as 支払い金額,
     DATE_FORMAT(O.order_date, '%Y-%m') as 各月の集計金額
 from 
 	OrderDetails as OD
@@ -124,10 +118,6 @@ inner join
 	Product as PT
 on
 	OD.p_id = PT.p_id	
-inner join 
-	Price as PE
-on
-	PT.price_id = PE.price_id
 group by
   	O.order_date
 ```

@@ -6,7 +6,7 @@
      * <<PK>> p_id : int : 商品ID
      --
      * <<FK>> pt_id              : int : 商品種類ID
-     * <<FK>> price_id           : int : 値段ID
+     * price                    : int    : 値段
      * p_name                    : string    : 商品名
      created_at                  : date      : 作成日時
      updated_at                  : date      : 更新日時
@@ -20,14 +20,6 @@
      updated_at                  : date      : 更新日時
  }
 
-  entity "値段 (Price)" as Price {
-     * <<PK>> price_id              : int : 値段ID
-     --
-     * price                    : int    : 値段
-     created_at                  : date      : 作成日時
-     updated_at                  : date      : 更新日時
- }
-
  entity "顧客 (Customer)" as Customer {
      * <<PK>> c_id : int : 顧客ID
      --
@@ -37,9 +29,19 @@
      updated_at      : date      : 更新日時
  }
 
+entity "注文 (Order)" as Order {
+     * <<PK>> od_id              : int : 注文ID
+     --
+     * <<FK>> c_id          : int : 顧客ID
+     * isPaid  : boolean    : 支払いフラグ
+     * totalAmount: int : 合計金額
+     * order_date                : date      : 注文日時
+     created_at                  : date      : 作成日時
+     updated_at                  : date      : 更新日時
+}
+
  entity "注文詳細 (OrderDetails)" as OrderDetails {
      * <<FK>> od_id : int : 注文ID
-     * <<FK>> c_id          : int : 顧客ID
      * <<FK>> p_id          : int : 商品ID
      * amount: int : 注文数量 
      * sabi_flag: int : サビフラグ(0:あり, 1:なし)
@@ -49,21 +51,9 @@
      updated_at : date : 更新日時
  }
 
-entity "注文 (Order)" as Order {
-     * <<FK>> od_id              : int : 注文ID
-     --
-     * <<FK>> c_id          : int : 顧客ID
-     * isPayment  : boolean    : 支払いフラグ
-     * totalAmount: int : 合計金額
-     * order_date                : date      : 注文日時
-     created_at                  : date      : 作成日時
-     updated_at                  : date      : 更新日時
- }
-
  ProductType ||..{ Product
- Price ||..{ Product
  Customer ||..o{ OrderDetails
- Price ||..o{ OrderDetails
+ Product ||..o{ OrderDetails
  OrderDetails }..|| Order
  Customer ||..{ Order 
 
