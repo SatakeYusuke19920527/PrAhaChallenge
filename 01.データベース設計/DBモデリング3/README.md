@@ -2,7 +2,7 @@
 ## ドキュメント管理システムのデータベースを設計
 
 ### DBスキーマ設計
-![ER図](./ER/../img/er3.png)
+![ER図](./ER/../img/er3.png)  
 以下、各テーブルの管理する項目を記載する
 1. User(u)
   + ユーザIDをプライマリキーとして、ユーザを管理するテーブル。
@@ -165,7 +165,7 @@ where directoryPath='test1¥test2' and fid='f_0004';
 ![実行結果4](./img/usecase4.png)
 
 #### food for thought
-- trelloの要素を並び替えた時のリクエスト
+- trelloの要素を並び替えた時のリクエスト  
 ![実行結果4](./img/foodforthought.png)
 
 カードIDをリクエストURLに持たせて、リクエストを実行
