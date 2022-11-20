@@ -106,10 +106,19 @@ from f
 where directoryPath = 'test1¥test2'
 
 -- ファイル削除
-DELETE FROM f where fid = 'f_0006'
+DELETE FROM 
+	f 
+where fid = 'f_0006'
 
 -- ファイルの更新
-update f set directoryPath='test1¥test2', updateUser="u_0003", content="test content 1 更新済み", history="更新済みの文言を追記しました。" where fid='f_0006';
+update 
+	f 
+set 
+	directoryPath='test1¥test2', 
+	updateUser="u_0003", 
+	content="test content 1 更新済み", 
+	history="更新済みの文言を追記しました。" 
+where fid='f_0006';
 ```
 
 #### 課題2
@@ -137,9 +146,21 @@ order by sortNo asc
 具体的には、`fid`が`f_0006`のファイルを`f_0002`へ移動させるクエリは以下。
 
 ```sql
-update f set sortNo='test1¥test2_0001' where directoryPath='test1¥test2' and fid='f_0006';
-update f set sortNo='test1¥test2_0002' where directoryPath='test1¥test2' and fid='f_0002';
-update f set sortNo='test1¥test2_0003' where directoryPath='test1¥test2' and fid='f_0004';
+update 
+	f 
+set 
+	sortNo='test1¥test2_0001' 
+where directoryPath='test1¥test2' and fid='f_0006';
+
+update 
+	f 
+set sortNo='test1¥test2_0002' 
+where directoryPath='test1¥test2' and fid='f_0002';
+
+update 
+	f 
+set sortNo='test1¥test2_0003' 
+where directoryPath='test1¥test2' and fid='f_0004';
 ```
 ![実行結果4](./img/usecase4.png)
 
@@ -217,9 +238,9 @@ returnされるレスポンスは以下
 2. 画面側のUIを変更
 3. バックエンドでbatch処理を走らせてDB内に保存されているカードの順番を変更
 
-具体的にカードの順番をどのように管理しているかは現在調査中。
+`具体的にカードの順番をどのように管理しているかは現在調査中。`
 
-+ Trelloのカードを入れ替えた時のリクエストは以下。
++ Trelloのカードを入れ替えた時のリクエストの全文は以下。
 ```
 Request URL: https://trello.com/1/batch?urls=%2FMember%2F5c6296d40b3ebb887e27ccc8%2Fdeltas%3FixLastUpdate%3D450%26tags%3Dmessages%252Cupdates%2C%2FOrganization%2F62247efbee29d55ea087d6db%2Fdeltas%3FixLastUpdate%3D8%26tags%3DallActions%252Cupdates%2C%2FBoard%2F622c149981d55f1294106cf0%2Fdeltas%3FixLastUpdate%3D624%26tags%3DclientActions%252Cupdates%2C%2FBoard%2F62247f1dc49a0645f2c71926%2Fdeltas%3FixLastUpdate%3D4931%26tags%3DclientActions%252Cupdates%2C%2FBoard%2F62444bd03e3128210ecbd81b%2Fdeltas%3FixLastUpdate%3D2403%26tags%3DclientActions%252Cupdates%2C%2FBoard%2F623566b4083fd65fe6760799%2Fdeltas%3FixLastUpdate%3D341%26tags%3DclientActions%252Cupdates
 Request Method: GET
