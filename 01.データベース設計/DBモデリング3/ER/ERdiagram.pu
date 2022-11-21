@@ -1,4 +1,4 @@
-@startuml chatapp
+@startuml document
  hide circle
  skinparam linetype ortho
 

@@ -1,32 +1,58 @@
-@startuml chatapp
+@startuml penpen
  hide circle
  skinparam linetype ortho
+
+entity "Slack (s)" as s {
+     * <<PK>> sid : string : slackID
+     --
+     * workspace     : string    : ワークスペース
+     * channel       : string    : チャネル
+     created_at      : date      : 作成日時
+     updated_at      : date      : 更新日時
+ }
 
  entity "User (u)" as u {
      * <<PK>> uid : string : ユーザID
      --
      * uname       : string    : ユーザ名
      * email       : string    : メールアドレス
-     displayName       : string    : ユーザ表示名
+     displayName     : string    : ユーザ表示名
      avatarUrl       : string    : アバターURL
      created_at      : date      : 作成日時
      updated_at      : date      : 更新日時
  }
- 
- entity "File (f)" as f {
-     * <<PK>> fid : string : ファイルID
+
+  entity "PeriodType (pt)" as pt {
+     * <<PK>> ptid : string : ピリオドタイプID
      --
-     * fname       : string    : ファイル名
-     * directoryPath       : string    : ディレクトリパス
-     * sortNo       : string    : ディレクトリ内のソート順
-     * <<FK>> owner       : string    : 所有者
-     * updateUser       : string    : 更新者
-     * content       : string    : ファイルの内容
-     * history       : string    : 更新履歴
+     * <<FK>> periodType       : string    : ピリオドタイプ
+     created_at                  : date      : 作成日時
+     updated_at                  : date      : 更新日時
+ }
+ 
+ entity "Reminder (r)" as r {
+     * <<PK>> rid : string : リマインダーID
+     --
+     * <<FK>> ptid       : string    : ピリオドタイプ
+     * <<FK>> settingUser       : string    : 設定したユーザ
+     * settingNumber       : string    : 設定した数値
+     * content       : string    : 通知する内容
      created_at                  : date      : 作成日時
      updated_at                  : date      : 更新日時
  }
 
- u ||..{ f
+  entity "To (t)" as t {
+     * <<FK>> rid : string : リマインダーID
+     --
+     * to       : string    : 送信先
+     * channelOrUser       : string    : 送信先がチャネルorユーザ(channel:0, user:1)
+     created_at                  : date      : 作成日時
+     updated_at                  : date      : 更新日時
+ }
+
+ u ||..{ r
+ pt ||..{ r
+ s ||..{ r
+ r ||..{ t
 
  @enduml

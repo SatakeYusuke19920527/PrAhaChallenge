@@ -1,8 +1,17 @@
 -- CREATE DATABASE
-CREATE DATABASE IF NOT EXISTS document;
+CREATE DATABASE IF NOT EXISTS penpen;
 
 -- CREATE TABLE
-CREATE TABLE IF NOT EXISTS document.u (
+CREATE TABLE IF NOT EXISTS penpen.s (
+  sid varchar(30) NOT NULL, 
+  workspace varchar(30) NOT NULL, 
+  channel varchar(30) NOT NULL, 
+  created_at datetime default current_timestamp,
+  updated_at timestamp default current_timestamp on update current_timestamp,
+  PRIMARY KEY (sid)
+);
+
+CREATE TABLE IF NOT EXISTS penpen.u (
   uid varchar(30) NOT NULL, 
   uname varchar(30) NOT NULL, 
   email varchar(30) NOT NULL, 
@@ -12,17 +21,32 @@ CREATE TABLE IF NOT EXISTS document.u (
   PRIMARY KEY (uid)
 );
 
-CREATE TABLE IF NOT EXISTS document.f (
-  fid varchar(30) NOT NULL, 
-  fname varchar(30) NOT NULL, 
-  directoryPath varchar(100) NOT NULL, 
-  sortNo varchar(100) NOT NULL, 
-  owner varchar(30) NOT NULL, 
-  updateUser varchar(30), 
-  content varchar(500), 
-  history varchar(100), 
+CREATE TABLE IF NOT EXISTS penpen.pt (
+  ptid varchar(30) NOT NULL, 
+  periodType varchar(30) NOT NULL, 
   created_at datetime default current_timestamp,
   updated_at timestamp default current_timestamp on update current_timestamp,
-  PRIMARY KEY (fid),
-  FOREIGN KEY fk_owner(owner) REFERENCES u(uid)
+  PRIMARY KEY (ptid),
+);
+
+CREATE TABLE IF NOT EXISTS penpen.r (
+  rid varchar(30) NOT NULL, 
+  ptid varchar(30) NOT NULL, 
+  settingUser varchar(30) NOT NULL, 
+  settingNumber varchar(30), 
+  content varchar(500), 
+  created_at datetime default current_timestamp,
+  updated_at timestamp default current_timestamp on update current_timestamp,
+  PRIMARY KEY (rid),
+  FOREIGN KEY fk_ptid(ptid) REFERENCES pt(ptid),
+  FOREIGN KEY fk_settingUser(settingUser) REFERENCES u(uid)
+);
+
+CREATE TABLE IF NOT EXISTS penpen.t (
+  rid varchar(30) NOT NULL, 
+  to varchar(30) NOT NULL, 
+  channelOrUser varchar(30) NOT NULL, 
+  created_at datetime default current_timestamp,
+  updated_at timestamp default current_timestamp on update current_timestamp,
+  FOREIGN KEY fk_rid(rid) REFERENCES r(rid)
 );
