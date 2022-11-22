@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS penpen.r (
   rid varchar(30) NOT NULL, 
   ptid varchar(30) NOT NULL, 
   settingUser varchar(30) NOT NULL, 
-  settingNumber varchar(30), 
+  settingNumber int NOT NULL, 
   content varchar(500), 
   created_at datetime default current_timestamp,
   updated_at timestamp default current_timestamp on update current_timestamp,
@@ -44,8 +44,8 @@ CREATE TABLE IF NOT EXISTS penpen.r (
 
 CREATE TABLE IF NOT EXISTS penpen.t (
   rid varchar(30) NOT NULL, 
-  to varchar(30) NOT NULL, 
-  channelOrUser varchar(30) NOT NULL, 
+  address varchar(30) NOT NULL, 
+  channelOrUser int NOT NULL, 
   created_at datetime default current_timestamp,
   updated_at timestamp default current_timestamp on update current_timestamp,
   FOREIGN KEY fk_rid(rid) REFERENCES r(rid)
