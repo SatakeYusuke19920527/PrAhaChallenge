@@ -9,8 +9,6 @@
      * email       : string    : メールアドレス
      displayName       : string    : ユーザ表示名
      avatarUrl       : string    : アバターURL
-     created_at      : date      : 作成日時
-     updated_at      : date      : 更新日時
  }
  
  entity "WorkSpace (ws)" as ws {
@@ -18,7 +16,6 @@
      --
      * wsname       : string    : ワークスペース名
      created_at                  : date      : 作成日時
-     updated_at                  : date      : 更新日時
  }
 
 entity "Channel (c)" as c {
@@ -27,7 +24,6 @@ entity "Channel (c)" as c {
      * <<FK>> wsid : string : ワークスペースID
      * cname       : string    : チャネル名
      created_at                  : date      : 作成日時
-     updated_at                  : date      : 更新日時
  }
 
 entity "Message (m)" as m {
@@ -37,8 +33,7 @@ entity "Message (m)" as m {
      * <<FK>> speaker       : string    : 発言者
      * message       : string    : メッセージ
      * sendtime       : date    : 送信時間
-     created_at                  : date      : 作成日時
-     updated_at                  : date      : 更新日時
+     updatetime       : date    : 更新時間
  }
 
 entity "Thread (t)" as t {
@@ -48,24 +43,29 @@ entity "Thread (t)" as t {
      * <<FK>> speaker       : string    : 発言者
      * tmessage       : string    : スレッドメッセージ
      * sendtime       : string    : 送信時間
-     created_at                  : date      : 作成日時
-     updated_at                  : date      : 更新日時
+     updatetime       : date    : 更新時間
  }
 
-entity "RelationshipWCU (rwcu)" as rwcu {
+entity "RelationshipWCU (rwu)" as rwu {
+    --
      * <<FK>> wsid : string : ワークスペースID
      * <<FK>> cid : string : チャネルID
      * <<FK>> uid : string : ユーザID
-     created_at                  : date      : 作成日時
-     updated_at                  : date      : 更新日時
+ }
+
+ entity "RelationshipCU (rcu)" as rcu {
+    --
+     * <<FK>> cid : string : チャネルID
+     * <<FK>> uid : string : ユーザID
  }
 
  ws ||..{ c
  c ||..o{ m
  m ||..o{ t
- ws ||..o{ rwcu
- c ||..o{ rwcu
- u ||..o{ rwcu
+ ws ||..o{ rwu
+ u ||..o{ rwu
+ c ||..o{ rcu
+ u ||..o{ rcu
  
 
  @enduml

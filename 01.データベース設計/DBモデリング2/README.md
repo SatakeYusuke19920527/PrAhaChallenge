@@ -176,3 +176,177 @@ where
 	m.message like '%test%' 
 	and (m.cid = 'c_0001' or m.cid = 'c_0002' or m.cid = 'c_0003')
 ```
+
+## レビュー指摘事項
+- review1
+	> RelationshipWCUテーブルが第2正規形を満たしていないように見えます。
+	理由としては、チャネルIDがワークスペースIDに対して部分関数従属になっているためです。
+	具体的な問題としては、以下の場合にユーザーとワークスペースを紐づける方法がありません。
+	例
+	①ユーザーを作ってそのユーザーがワークスペースを作ったが、まだチャンネルを作っていない場合
+	②既存ワークスペースにユーザーを追加させたが、またどのチャンネルにも追加していない場合
+
+- review後の対応
+	> ①ユーザーを作ってそのユーザーがワークスペースを作ったが、まだチャンネルを作っていない場合  
+	②既存ワークスペースにユーザーを追加させたが、またどのチャンネルにも追加していない場合
+
+	レビューより、上記2点の考慮漏れが判明した。
+	確かに指摘の通りで、ワークスペース・チャネル・ユーザで紐づける`rwcu`テーブルでは、第二正規系を満たしておらず、部分関数従属になっており、チャネルがない場合のワークスペースとユーザを紐付けられていない。ワークスペースとチャネル、ワークスペースとユーザの二つのテーブルを作成することで対応しようと思う。
+	新たにER図を再作成してみた。
+
+	### レビュー後ER図
+	![ER図](./ER/er2_v1.png)
+
+	上記に伴って各テーブルを作成するSQLを修正
+	> ./sql/create_table_v1.sql
+
+	テーブル構成変更に伴って、ユースケースが実行できるか確認してみる。
+	
+	#### 特定のチャネル[c_0001]でのメッセージの取得
+	こちらは問題なくそのままのクエリで実行可能。
+		
+	```sql
+	select 
+		ws.wsid as ワークスペース,
+		m.cid as チャネル,
+		u.displayName as ユーザ名,
+		m.message as メッセージ,
+		m.sendtime as 日時
+	from m
+	inner join u on m.speaker = u.uid
+	inner join c on m.cid = c.cid
+	inner join ws on c.wsid = ws.wsid
+	where c.cid = 'c_0001'
+	```
+	![レビュー後実行結果1](./img/usecase1_v1.png)
+
+	#### スレッドメッセージの取得
+  こちらも問題なさそう。
+
+	```sql
+	select 
+		ws.wsid as ワークスペース,
+		c.cid as チャネル,
+		m.mid as メッセージID,
+		u.displayName as ユーザ名,
+		t.tmessage as メッセージ,
+		 m.sendtime as 日時
+	from m 
+	inner join t on	m.mid = t.mid
+	inner join c on m.cid = c.cid
+	inner join u on t.speaker = u.uid
+	inner join ws on c.wsid = ws.wsid
+	where m.cid = 'c_0001'
+	```
+	![レビュー後実行結果2](./img/usecase2_v1.png)
+
+	#### チャネルに所属するユーザのみメッセージを閲覧可能
+	こちらはすこし以下の部分が修正が必要だった。
+	rwcuテーブルをrwuとrcuに分割したので、以下のクエリへ変更した。
+	```sql
+	select count(*) from rwu inner join c on rwu.wsid = c.wsid where rwu.wsid = @WORKSPACE_ID and c.cid = @CHANNEL_ID and rwu.uid = @USER_ID
+	```
+	実行結果は以下となった。
+	```sql
+	-- 各検索を実施するワークスペース・チャネル・ユーザを入力
+	set @WORKSPACE_ID = 'ws_0001';
+	set @CHANNEL_ID = 'c_0001';
+	set @USER_ID = 'u_0004';
+	set @IS_USER = (select count(*) from rwu inner join c on rwu.wsid = c.wsid where rwu.wsid = @WORKSPACE_ID and c.cid = @CHANNEL_ID and rwu.uid = @USER_ID)
+	-- 結果が1であれば検索実行。0であればチャネル内に存在しないユーザなので検索を実行しない。
+	select @IS_USER;
+	```
+	![レビュー後実行結果3](./img/usecase3_v1.png)
+
+	#### ユーザのワークスペース参加脱退及び、チャネルに参加及び脱退
+
+	各ユーザがどのワークスペースもしくはチャネルに所属しているかは[rwcu]テーブルで管理していたが、[rwu]と[rcu]へ分割した為、クエリの修正が必要。
+	  
+	現在ワークスペース1に所属しているユーザは以下。
+	```sql
+	-- 所属ユーザ確認用クエリ
+	select 
+	 DISTINCT u.uname as ユーザ名
+	from rwu 
+	inner join c on rwu.wsid = c.wsid
+	inner join u on rwu.uid = u.uid
+	where rwu.wsid = 'ws_0001'
+	```
+	![レビュー後実行結果4](./img/usecase4_v1.png)
+
+	このワークスペース1のチャネル1へユーザ`test6`を登録するのは以下のクエリ。
+
+	```sql
+	-- 新規ユーザをuテーブルへ追加する。→ slackへ登録するイメージ
+	INSERT INTO u (uid, uname, email, displayName) VALUES ('u_0006', 'test6', 'test6@gmail.com', 'テストユーザ6')
+
+	-- 新規ユーザをワークスペース1へ追加する。rwuテーブルでワークスペースとユーザを紐づける
+	INSERT INTO rwu (wsid, uid) VALUES ('ws_0001','u_0006')
+
+	-- 新規ユーザをワークスペース1のチャネル1へ追加
+	INSERT INTO rcu (cid, uid) VALUES ('c_0001','u_0006')
+
+	```
+
+	また、ワークスペース1`ws_0001`からユーザ1`test6`を脱退させる場合のクエリは以下
+	```sql
+	-- チャンネル1からユーザtest6を脱退させる
+	DELETE FROM rcu where cid = 'c_0001' and uid = 'u_0006'
+
+	-- ワークスペース1からユーザtest6を脱退させる
+	DELETE FROM rwu where wsid = 'ws_0001' and uid = 'u_0006'
+	```
+
+	#### 横断的な検索機能
+	
+	処理の流れとしてはレビュー前と同様以下となる。
+	`rwu`と`rcu`テーブルを使用して、検索を使用するユーザがどのチャネルに存在しているか確認。検索結果から所属しているチャネルに限定し、横断的な検索を実行
+
+	```sql
+	-- 特定のワークスペースとユーザIDからユーザがどのチャネルに所属しているか確認
+	set @WORKSPACE_ID = 'ws_0001';
+	set @USER_ID = 'u_0001';
+	select 
+		rcu.cid 
+	from rwu 
+	inner join rcu on rwu.uid = rcu.uid
+	where rwu.wsid = @WORKSPACE_ID and rcu.uid = @USER_ID
+	```
+	ワークスペース1`ws_001`で`u_0001`が所属しているチャンネルは以下。
+	![レビュー後実行結果5](./img/usecase5_v1.png)
+
+	上記検索にヒットしたチャネル`c_0001`と`c_0002`で全文検索
+
+	```sql
+	-- 上記クエリの検索結果を使ってスレッドとメッセージを`test`という文言で検索
+	select 
+		m.speaker as メッセージ送信者,
+		m.message as メッセージ,
+		t.speaker as スレッドメッセージ送信者,
+		t.tmessage as スレッドメッセージ 
+	from m
+	left join t on m.mid = t.mid
+	where m.message like '%test%' and (m.cid = 'c_0001' or m.cid = 'c_0002')
+	```
+
+
+- review2
+	> こちらは異論があるかと思いますが、
+	メッセージがスレッドをぶら下げるのには個人的に違和感があります。
+	Slackを物理的にみると、ワークスペースが複数チャンネルを持ち、チャンネルが複数スレッドを持ち、スレッ	ドが複数メッセージを持つと考えた方が自然ではないでしょうか。
+	DBレベルでは、
+	・スレッドテーブルはid, created_atくらいだけ持つ
+	・メッセージテーブルのみがmessageカラムを持つ
+	実装レベルでは、
+	・チャンネルに新規にメッセージを投稿した時に、スレッドIDを発行し、メッセージに持たせるようにする
+	・検索機能はメッセージテーブルのみがmessageカラムのみをSELECTする
+
+	こちらはチーム内で議論
+	問題文的にはメッセージにスレッドメッセージが紐づくような記載があるが、各スレッドが複数メッセージを持つ考え方も理解できる。
+	より最適な方を採択する予定。
+
+- review3
+	> 余談ですが、sendtimeとcreated_atはどのような背景でしょうか？
+
+	create_atとupdate_atは全テーブルにつける必要はなさそう。
+	必要なテーブルのみでカラムとしてつけるように修正
